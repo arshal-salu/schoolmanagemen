@@ -1,0 +1,10 @@
+{
+  "name": "schoolmanagement-root",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix nuxt-app",
+    "build": "npm run build --prefix nuxt-app",
+    "generate": "npm run generate --prefix nuxt-app",
+    "preview": "npm run preview --prefix nuxt-app"
+  }
+}

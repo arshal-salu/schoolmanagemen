@@ -50,14 +50,24 @@
       </div>
 
       <!-- User Admin Account Widget -->
-      <div class="pt-6 border-t border-slate-100 flex items-center gap-3">
-        <div class="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm">
-          AD
+      <div class="pt-6 border-t border-slate-100 flex items-center justify-between gap-2.5 min-w-0">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xs flex-shrink-0 border border-blue-100/50">
+            {{ userInitials }}
+          </div>
+          <div class="flex flex-col min-w-0">
+            <span class="text-xs font-semibold text-slate-950 truncate">{{ user?.email?.split('@')[0] || 'User' }}</span>
+            <span class="text-[10px] text-slate-400 truncate" :title="user?.email">{{ user?.email || 'Authenticated' }}</span>
+          </div>
         </div>
-        <div class="flex flex-col min-w-0">
-          <span class="text-xs font-semibold text-slate-950 truncate">Administrator</span>
-          <span class="text-[10px] text-slate-400 truncate">School Manager</span>
-        </div>
+        <button 
+          @click="handleLogout"
+          class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200 flex-shrink-0 group"
+          title="Sign Out"
+        >
+          <!-- Door/Logout Icon -->
+          <span class="text-base group-hover:scale-110 inline-block transition-transform">🚪</span>
+        </button>
       </div>
     </aside>
 
@@ -78,9 +88,31 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const isMobileMenuOpen = ref(false)
+
+const client = useSupabaseClient()
+const user = useSupabaseUser()
+
+const userInitials = computed(() => {
+  if (!user.value || !user.value.email) return 'AD'
+  const emailPart = user.value.email.split('@')[0]
+  const parts = emailPart.split(/[._-]/)
+  if (parts.length >= 2 && parts[0] && parts[1]) {
+    return (parts[0][0] + parts[1][0]).toUpperCase()
+  }
+  return emailPart.slice(0, 2).toUpperCase()
+})
+
+const handleLogout = async () => {
+  try {
+    await client.auth.signOut()
+    await navigateTo('/login')
+  } catch (err) {
+    console.error('Logout error:', err)
+  }
+}
 
 const navItems = [
   { label: 'Students Directory', path: '/students', icon: '👥' },
