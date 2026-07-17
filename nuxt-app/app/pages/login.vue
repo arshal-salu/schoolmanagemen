@@ -201,6 +201,7 @@ const handleVerifyOtp = async () => {
   errorMessage.value = ''
 
   try {
+    // Try verifying as a standard login OTP first
     const { error } = await client.auth.verifyOtp({
       email: email.value,
       token: otp.value,
@@ -208,9 +209,21 @@ const handleVerifyOtp = async () => {
     })
 
     if (error) {
-      errorMessage.value = error.message
+      // If it fails (common for new signups when email confirmation is enabled), try verifying as signup
+      const { error: signupError } = await client.auth.verifyOtp({
+        email: email.value,
+        token: otp.value,
+        type: 'signup'
+      })
+
+      if (signupError) {
+        // If both verify types fail, display the error message
+        errorMessage.value = error.message
+      } else {
+        await navigateTo('/')
+      }
     } else {
-      // Successfully authenticated, redirect to portal
+      // Successfully authenticated
       await navigateTo('/')
     }
   } catch (err) {
