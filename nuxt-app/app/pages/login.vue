@@ -80,12 +80,12 @@
             @input="otp = otp.replace(/\D/g, '')"
             type="text"
             required
-            pattern="[0-9]{8}"
+            pattern="[0-9]{6,8}"
             maxlength="8"
             inputmode="numeric"
             autocomplete="one-time-code"
             :disabled="loading"
-            placeholder="12345678"
+            placeholder="Enter code"
             class="block w-full pl-10 pr-4 py-3 bg-slate-950/80 border border-slate-800 text-white rounded-xl placeholder-slate-650 tracking-[0.25em] text-center font-mono font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-base"
           />
         </div>
@@ -94,7 +94,7 @@
       <div class="pt-2 space-y-3">
         <button
           type="submit"
-          :disabled="loading || otp.length !== 8"
+          :disabled="loading || otp.length < 6 || otp.length > 8"
           class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-blue-500/20"
         >
           <span v-if="loading" class="flex items-center gap-2">
@@ -184,7 +184,7 @@ const handleSendOtp = async () => {
       errorMessage.value = error.message
     } else {
       step.value = 'verify'
-      successMessage.value = `An 8-digit login code has been sent to ${email.value}.`
+      successMessage.value = `A verification code has been sent to ${email.value}.`
       startTimer()
     }
   } catch (err) {
@@ -196,11 +196,12 @@ const handleSendOtp = async () => {
 }
 
 const handleVerifyOtp = async () => {
-  if (loading.value || otp.value.length !== 8) return
+  if (loading.value || otp.value.length < 6 || otp.value.length > 8) return
   loading.value = true
   errorMessage.value = ''
 
   try {
+    console.log(`Attempting to verify OTP of length ${otp.value.length} with type 'email'...`)
     // Try verifying as a standard login OTP first
     const { error } = await client.auth.verifyOtp({
       email: email.value,
@@ -209,7 +210,9 @@ const handleVerifyOtp = async () => {
     })
 
     if (error) {
+      console.warn('Verify OTP with type "email" failed:', error.message)
       // If it fails (common for new signups when email confirmation is enabled), try verifying as signup
+      console.log('Attempting fallback verification with type "signup"...')
       const { error: signupError } = await client.auth.verifyOtp({
         email: email.value,
         token: otp.value,
@@ -217,12 +220,15 @@ const handleVerifyOtp = async () => {
       })
 
       if (signupError) {
+        console.error('Verify OTP with type "signup" also failed:', signupError.message)
         // If both verify types fail, display the error message
         errorMessage.value = error.message
       } else {
+        console.log('Successfully verified with type "signup"')
         await navigateTo('/')
       }
     } else {
+      console.log('Successfully verified with type "email"')
       // Successfully authenticated
       await navigateTo('/')
     }
