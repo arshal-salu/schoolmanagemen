@@ -159,10 +159,10 @@ onMounted(() => {
     </div>
 
     <!-- Main Grid Layout -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
       
       <!-- Layout Configuration Panel -->
-      <section class="lg:col-span-4 lg:sticky lg:top-8">
+      <section class="xl:col-span-4 xl:sticky xl:top-8">
         <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 p-6">
           <h2 class="text-lg font-bold text-slate-950 mb-1">Configuration</h2>
           <p class="text-xs text-slate-500 mb-6">Select class division, subject, and exam parameters to load students.</p>
@@ -232,7 +232,7 @@ onMounted(() => {
       </section>
 
       <!-- Tabular View Section -->
-      <section class="lg:col-span-8">
+      <section class="xl:col-span-8">
         <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 p-6 min-h-[400px] flex flex-col">
           
           <!-- State: No division chosen yet -->
@@ -271,9 +271,9 @@ onMounted(() => {
               <table class="w-full text-left border-collapse">
                 <thead>
                   <tr class="bg-slate-50 text-slate-600 border-b border-slate-100">
-                    <th class="text-xs font-bold uppercase tracking-wider p-4 w-32">Roll No.</th>
+                    <th class="text-xs font-bold uppercase tracking-wider p-4 w-28">Roll No.</th>
                     <th class="text-xs font-bold uppercase tracking-wider p-4">Student Name</th>
-                    <th class="text-xs font-bold uppercase tracking-wider p-4 text-right pr-12 w-48">Marks Obtained</th>
+                    <th class="text-xs font-bold uppercase tracking-wider p-4 text-right pr-12 w-36">Marks Obtained</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">

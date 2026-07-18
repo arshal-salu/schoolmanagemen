@@ -159,10 +159,10 @@ onMounted(() => {
     </div>
 
     <!-- Main Grid Layout -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
       
       <!-- Layout Configuration Panel -->
-      <section class="lg:col-span-4 lg:sticky lg:top-8">
+      <section class="xl:col-span-4 xl:sticky xl:top-8">
         <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 p-6">
           <h2 class="text-lg font-bold text-slate-950 mb-1">Configuration</h2>
           <p class="text-xs text-slate-500 mb-6">Set date, division, and subject to fetch student listing.</p>
@@ -231,7 +231,7 @@ onMounted(() => {
       </section>
 
       <!-- Tabular View Section -->
-      <section class="lg:col-span-8">
+      <section class="xl:col-span-8">
         <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 p-6 min-h-[400px] flex flex-col">
           
           <!-- State: No division chosen yet -->

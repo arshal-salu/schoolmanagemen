@@ -466,10 +466,10 @@ onMounted(() => {
     </div>
 
     <!-- Main Grid Layout -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
       
       <!-- Left side: Registration Form -->
-      <section class="lg:col-span-4 lg:sticky lg:top-8">
+      <section class="xl:col-span-4 xl:sticky xl:top-8">
         <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 p-6">
           <h2 class="text-lg font-bold text-slate-950 mb-1">Register Student</h2>
           <p class="text-xs text-slate-500 mb-6">Enter details and select a profile image to add a student.</p>
@@ -519,7 +519,7 @@ onMounted(() => {
                 v-model="divisionId"
                 required
                 :disabled="isSubmitting || isFetchingDivisions"
-                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-955 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all cursor-pointer"
+                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-60 disabled:cursor-not-allowed transition-all cursor-pointer"
               >
                 <option value="" disabled selected>
                   {{ isFetchingDivisions ? 'Loading grades...' : 'Select Grade' }}
@@ -586,7 +586,7 @@ onMounted(() => {
       </section>
 
       <!-- Right side: Student List -->
-      <section class="lg:col-span-8 flex flex-col gap-6">
+      <section class="xl:col-span-8 flex flex-col gap-6">
         <div class="flex items-center justify-between">
           <h2 class="text-lg font-bold text-slate-950">Registered Students</h2>
           <span class="text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200/50 px-2.5 py-1 rounded-md" v-if="students.length">

@@ -5,7 +5,7 @@
     <header class="lg:hidden bg-white border-b border-slate-200/80 px-6 py-4 flex items-center justify-between sticky top-0 z-50 print:hidden">
       <div class="flex items-center gap-2">
         <span class="text-2xl">🎓</span>
-        <span class="font-bold text-lg text-slate-955">School Portal</span>
+        <span class="font-bold text-lg text-slate-950">School Portal</span>
       </div>
       
       <!-- Hamburger Toggle Button -->
@@ -20,11 +20,11 @@
     <!-- Sidebar Navigation -->
     <aside 
       :class="[
-        'fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-slate-200/80 p-6 flex flex-col justify-between transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:h-screen lg:flex-shrink-0 print:hidden',
+        'fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-slate-200/80 p-6 flex flex-col transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:h-screen lg:flex-shrink-0 print:hidden',
         isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
       ]"
     >
-      <div>
+      <div class="flex-1 min-h-0 overflow-y-auto mb-6 pr-1 -mr-1">
         <!-- Brand Logo Area -->
         <div class="hidden lg:flex items-center gap-3 mb-8">
           <span class="text-3xl">🎓</span>
@@ -41,7 +41,7 @@
             :key="item.path" 
             :to="item.path"
             @click="isMobileMenuOpen = false"
-            class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 text-slate-500 hover:bg-slate-50 hover:text-slate-955 [&.router-link-active]:bg-blue-50 [&.router-link-active]:text-blue-600"
+            class="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 text-slate-500 hover:bg-slate-50 hover:text-slate-950 [&.router-link-active]:bg-blue-50 [&.router-link-active]:text-blue-600"
           >
             <span class="text-lg">{{ item.icon }}</span>
             <span>{{ item.label }}</span>
@@ -50,7 +50,7 @@
       </div>
 
       <!-- User Admin Account Widget -->
-      <div class="pt-6 border-t border-slate-100 flex items-center justify-between gap-2.5 min-w-0">
+      <div class="pt-6 border-t border-slate-100 flex items-center justify-between gap-2.5 min-w-0 flex-shrink-0">
         <div class="flex items-center gap-2.5 min-w-0">
           <div class="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xs flex-shrink-0 border border-blue-100/50">
             {{ userInitials }}
@@ -75,7 +75,7 @@
     <div 
       v-if="isMobileMenuOpen" 
       @click="isMobileMenuOpen = false" 
-      class="fixed inset-0 z-30 bg-slate-955/20 backdrop-blur-sm lg:hidden print:hidden"
+      class="fixed inset-0 z-30 bg-slate-950/20 backdrop-blur-sm lg:hidden print:hidden"
     ></div>
 
     <!-- Main Dynamic Pages Content Area -->

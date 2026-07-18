@@ -111,7 +111,7 @@ onMounted(() => {
     <!-- Page Header -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
       <div>
-        <h1 class="text-2xl font-bold text-slate-955 tracking-tight">Subjects Directory</h1>
+        <h1 class="text-2xl font-bold text-slate-950 tracking-tight">Subjects Directory</h1>
         <p class="text-sm text-slate-500 mt-1">Configure academic curriculum subjects and assign teachers.</p>
       </div>
       <div class="self-start md:self-auto bg-blue-50 border border-blue-200/60 text-blue-600 font-semibold text-xs px-3 py-1.5 rounded-full uppercase tracking-wider">
@@ -120,12 +120,12 @@ onMounted(() => {
     </div>
 
     <!-- Main Grid Layout -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
       
       <!-- Left side: Registration Form -->
-      <section class="lg:col-span-4 lg:sticky lg:top-8">
+      <section class="xl:col-span-4 xl:sticky xl:top-8">
         <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 p-6">
-          <h2 class="text-lg font-bold text-slate-955 mb-1">Add New Subject</h2>
+          <h2 class="text-lg font-bold text-slate-950 mb-1">Add New Subject</h2>
           <p class="text-xs text-slate-500 mb-6">Create a curriculum subject and link it to an instructor.</p>
 
           <form @submit.prevent="registerSubject" class="space-y-4">
@@ -139,7 +139,7 @@ onMounted(() => {
                 placeholder="e.g. Chemistry"
                 required
                 :disabled="isSubmitting"
-                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-955 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-60 transition-all"
+                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-60 transition-all"
               />
             </div>
 
@@ -150,7 +150,7 @@ onMounted(() => {
                 id="subject-teacher" 
                 v-model="teacherId"
                 :disabled="isSubmitting || isFetchingTeachers"
-                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-955 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-60 transition-all cursor-pointer"
+                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-60 transition-all cursor-pointer"
               >
                 <option value="" selected>No Teacher Assigned</option>
                 <option 
@@ -177,9 +177,9 @@ onMounted(() => {
       </section>
 
       <!-- Right side: Subjects List -->
-      <section class="lg:col-span-8 flex flex-col gap-6">
+      <section class="xl:col-span-8 flex flex-col gap-6">
         <div class="flex items-center justify-between">
-          <h2 class="text-lg font-bold text-slate-955">Registered Subjects</h2>
+          <h2 class="text-lg font-bold text-slate-950">Registered Subjects</h2>
           <span class="text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200/50 px-2.5 py-1 rounded-md" v-if="subjects.length">
             {{ subjects.length }} total
           </span>
@@ -212,7 +212,7 @@ onMounted(() => {
             
             <!-- Details -->
             <div class="flex-grow min-w-0">
-              <h3 class="font-bold text-slate-955 truncate text-sm" :title="subject.name">{{ subject.name }}</h3>
+              <h3 class="font-bold text-slate-950 truncate text-sm" :title="subject.name">{{ subject.name }}</h3>
               <div class="flex items-center gap-1.5 mt-1.5">
                 <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Teacher:</span>
                 <span class="inline-flex bg-sky-50 border border-sky-100 text-sky-700 font-semibold text-[10px] px-2 py-0.5 rounded-md truncate">

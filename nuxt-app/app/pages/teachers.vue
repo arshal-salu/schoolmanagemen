@@ -168,7 +168,7 @@ onMounted(() => {
     <!-- Page Header -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
       <div>
-        <h1 class="text-2xl font-bold text-slate-955 tracking-tight">Teachers Directory</h1>
+        <h1 class="text-2xl font-bold text-slate-950 tracking-tight">Teachers Directory</h1>
         <p class="text-sm text-slate-500 mt-1">Register new faculty staff and manage baseline credentials.</p>
       </div>
       <div class="self-start md:self-auto bg-blue-50 border border-blue-200/60 text-blue-600 font-semibold text-xs px-3 py-1.5 rounded-full uppercase tracking-wider">
@@ -177,12 +177,12 @@ onMounted(() => {
     </div>
 
     <!-- Main Grid Layout -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
       
       <!-- Left side: Registration Form -->
-      <section class="lg:col-span-4 lg:sticky lg:top-8">
+      <section class="xl:col-span-4 xl:sticky xl:top-8">
         <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 p-6">
-          <h2 class="text-lg font-bold text-slate-955 mb-1">Add New Teacher</h2>
+          <h2 class="text-lg font-bold text-slate-950 mb-1">Add New Teacher</h2>
           <p class="text-xs text-slate-500 mb-6">Enter baseline credentials and photo to register.</p>
 
           <form @submit.prevent="registerTeacher" class="space-y-4">
@@ -196,7 +196,7 @@ onMounted(() => {
                 placeholder="e.g. Mr. Anderson"
                 required
                 :disabled="isSubmitting"
-                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-955 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-60 transition-all"
+                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-60 transition-all"
               />
             </div>
 
@@ -210,7 +210,7 @@ onMounted(() => {
                 placeholder="e.g. anderson@school.com"
                 required
                 :disabled="isSubmitting"
-                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-955 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-60 transition-all"
+                class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm text-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-60 transition-all"
               />
             </div>
 
@@ -240,7 +240,7 @@ onMounted(() => {
                 <!-- Preview of selected file -->
                 <div v-else class="w-full h-24 relative group">
                   <img :src="avatarPreview" alt="Avatar preview" class="w-full h-full object-cover" />
-                  <div class="absolute inset-0 bg-slate-955/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white font-medium text-xs transition-opacity duration-200 pointer-events-none">
+                  <div class="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white font-medium text-xs transition-opacity duration-200 pointer-events-none">
                     <span>Replace Photo</span>
                   </div>
                 </div>
@@ -261,9 +261,9 @@ onMounted(() => {
       </section>
 
       <!-- Right side: Teachers List -->
-      <section class="lg:col-span-8 flex flex-col gap-6">
+      <section class="xl:col-span-8 flex flex-col gap-6">
         <div class="flex items-center justify-between">
-          <h2 class="text-lg font-bold text-slate-955">Registered Faculty</h2>
+          <h2 class="text-lg font-bold text-slate-950">Registered Faculty</h2>
           <span class="text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200/50 px-2.5 py-1 rounded-md" v-if="teachers.length">
             {{ teachers.length }} total
           </span>

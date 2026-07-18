@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-955 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden font-sans antialiased selection:bg-blue-500 selection:text-white">
+  <div class="min-h-screen bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden font-sans antialiased selection:bg-blue-500 selection:text-white">
     <!-- Ambient Background Lights -->
     <div class="absolute top-0 -left-4 w-96 h-96 bg-blue-600 rounded-full filter blur-[128px] opacity-20 animate-pulse"></div>
     <div class="absolute bottom-0 -right-4 w-96 h-96 bg-indigo-600 rounded-full filter blur-[128px] opacity-20 animate-pulse"></div>

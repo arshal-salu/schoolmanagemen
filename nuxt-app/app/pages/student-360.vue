@@ -192,7 +192,7 @@ const weakestSubject = computed(() => {
             placeholder="Type student name or roll number to search..." 
             v-model="searchQuery"
             @input="onSearchInput"
-            class="w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl text-sm text-slate-955 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm"
+            class="w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl text-sm text-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm"
           />
           <!-- Clear Button -->
           <button 
@@ -348,10 +348,10 @@ const weakestSubject = computed(() => {
       </section>
 
       <!-- Performance breakdowns (Grades per subject) -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full mt-6">
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 w-full mt-6">
         
         <!-- Left: Subject Average breakdown list (1 col) -->
-        <div class="lg:col-span-1 bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+        <div class="xl:col-span-1 bg-white rounded-xl shadow-sm border border-slate-100 p-6">
           <h3 class="text-sm font-bold text-slate-950 mb-4 border-b border-slate-100 pb-2 px-1">Subject Performance Averages</h3>
           
           <div v-if="subjectAverages.length > 0" class="space-y-4">
@@ -380,7 +380,7 @@ const weakestSubject = computed(() => {
         </div>
 
         <!-- Right: Detail gradebook entries table (2 cols) -->
-        <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+        <div class="xl:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 p-6">
           <h3 class="text-sm font-bold text-slate-950 mb-4 border-b border-slate-100 pb-2 px-1">Gradebook Log Entries</h3>
           
           <div v-if="gradesList.length > 0" class="overflow-x-auto">
