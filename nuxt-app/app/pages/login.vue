@@ -132,7 +132,7 @@
 </template>
 
 <script setup>
-import { ref, onBeforeUnmount } from 'vue'
+import { ref, onBeforeUnmount, watch } from 'vue'
 
 definePageMeta({
   layout: 'auth'
@@ -225,11 +225,50 @@ const handleVerifyOtp = async () => {
         errorMessage.value = error.message
       } else {
         console.log('Successfully verified with type "signup"')
+        
+        // Wait for useSupabaseUser to be populated before navigating to avoid middleware race condition
+        const user = useSupabaseUser()
+        if (!user.value) {
+          console.log('Waiting for useSupabaseUser to populate...')
+          await new Promise((resolve) => {
+            const unwatch = watch(user, (newUser) => {
+              if (newUser) {
+                unwatch()
+                resolve()
+              }
+            })
+            setTimeout(() => {
+              unwatch()
+              resolve()
+            }, 2000)
+          })
+        }
+        
+        console.log('User authenticated, navigating...')
         await navigateTo('/')
       }
     } else {
       console.log('Successfully verified with type "email"')
-      // Successfully authenticated
+      
+      // Wait for useSupabaseUser to be populated before navigating to avoid middleware race condition
+      const user = useSupabaseUser()
+      if (!user.value) {
+        console.log('Waiting for useSupabaseUser to populate...')
+        await new Promise((resolve) => {
+          const unwatch = watch(user, (newUser) => {
+            if (newUser) {
+              unwatch()
+              resolve()
+            }
+          })
+          setTimeout(() => {
+            unwatch()
+            resolve()
+          }, 2000)
+        })
+      }
+      
+      console.log('User authenticated, navigating...')
       await navigateTo('/')
     }
   } catch (err) {
