@@ -51,15 +51,23 @@
 
       <!-- User Admin Account Widget -->
       <div class="pt-6 border-t border-slate-100 flex items-center justify-between gap-2.5 min-w-0 flex-shrink-0">
-        <div class="flex items-center gap-2.5 min-w-0">
-          <div class="w-9 h-9 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xs flex-shrink-0 border border-blue-100/50">
-            {{ userInitials }}
+        <NuxtLink to="/profile" class="flex items-center gap-2.5 min-w-0 flex-1 hover:bg-slate-50 p-1.5 rounded-xl transition-all group/widget" title="View School Profile">
+          <div class="w-9 h-9 rounded-full overflow-hidden flex-shrink-0 border border-slate-200/60 bg-blue-50 flex items-center justify-center">
+            <img 
+              v-if="displayLogoUrl"
+              :src="displayLogoUrl"
+              alt="School Logo"
+              class="w-full h-full object-cover"
+            />
+            <span v-else class="text-blue-600 font-bold text-xs">{{ userInitials }}</span>
           </div>
-          <div class="flex flex-col min-w-0">
-            <span class="text-xs font-semibold text-slate-950 truncate">{{ user?.email?.split('@')[0] || 'User' }}</span>
+          <div class="flex flex-col min-w-0 flex-1">
+            <span class="text-xs font-bold text-slate-950 truncate group-hover/widget:text-blue-600 transition-colors">
+              {{ displaySchoolName }}
+            </span>
             <span class="text-[10px] text-slate-400 truncate" :title="user?.email">{{ user?.email || 'Authenticated' }}</span>
           </div>
-        </div>
+        </NuxtLink>
         <button 
           @click="handleLogout"
           class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200 flex-shrink-0 group"
@@ -88,12 +96,43 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 
 const isMobileMenuOpen = ref(false)
 
 const client = useSupabaseClient()
 const user = useSupabaseUser()
+
+const localSchoolName = ref('')
+const localLogoUrl = ref('')
+
+const displaySchoolName = computed(() => {
+  return user.value?.user_metadata?.school_name || localSchoolName.value || 'School Profile'
+})
+
+const displayLogoUrl = computed(() => {
+  return user.value?.user_metadata?.logo_url || localLogoUrl.value || ''
+})
+
+onMounted(() => {
+  try {
+    const local = localStorage.getItem('school_profile')
+    if (local) {
+      const data = JSON.parse(local)
+      if (data.school_name) localSchoolName.value = data.school_name
+      if (data.logo_url) localLogoUrl.value = data.logo_url
+    }
+  } catch (e) {
+    console.error('Failed to read school_profile from localStorage:', e)
+  }
+})
+
+watch(() => user.value?.user_metadata, (meta) => {
+  if (meta) {
+    if (meta.school_name) localSchoolName.value = meta.school_name
+    if (meta.logo_url) localLogoUrl.value = meta.logo_url
+  }
+}, { immediate: true })
 
 const userInitials = computed(() => {
   if (!user.value || !user.value.email) return 'AD'
@@ -122,6 +161,7 @@ const navItems = [
   { label: 'Student 360', path: '/student-360', icon: '🔍' },
   { label: 'Teachers Portal', path: '/teachers', icon: '👨‍🏫' },
   { label: 'Subjects Portal', path: '/subjects', icon: '📖' },
-  { label: 'Analytics Dashboard', path: '/dashboard', icon: '📊' }
+  { label: 'Analytics Dashboard', path: '/dashboard', icon: '📊' },
+  { label: 'School Profile', path: '/profile', icon: '🏫' }
 ]
 </script>
