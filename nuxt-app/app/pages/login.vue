@@ -1,50 +1,96 @@
 <template>
   <div>
-    <!-- Header Section -->
-    <div class="text-center mb-8">
+    <!-- Brand Header -->
+    <div class="text-center mb-6">
       <h2 class="text-3xl font-extrabold text-white tracking-tight">
-        {{ step === 'email' ? 'Sign in to Portal' : 'Verify your email' }}
+        {{ activeTab === 'signin' ? 'Sign in to Portal' : 'Create an Account' }}
       </h2>
       <p class="mt-2 text-sm text-slate-400">
-        {{ step === 'email' 
-          ? 'Enter your email address to receive a secure login code.' 
-          : `We sent an 8-digit verification code to ${email}` 
+        {{ activeTab === 'signin' 
+          ? 'Enter your school credentials to access the management portal.' 
+          : 'Register a new administrator account with your email & password.' 
         }}
       </p>
+    </div>
+
+    <!-- Navigation Tabs: Sign In / Create Account -->
+    <div class="mb-6 flex p-1 bg-slate-950/90 border border-slate-800 rounded-xl">
+      <button
+        type="button"
+        @click="switchTab('signin')"
+        :class="[
+          'flex-1 py-2.5 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-200 flex items-center justify-center gap-2',
+          activeTab === 'signin' 
+            ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' 
+            : 'text-slate-400 hover:text-slate-200'
+        ]"
+      >
+        <span>🔑</span> Log In
+      </button>
+      <button
+        type="button"
+        @click="switchTab('signup')"
+        :class="[
+          'flex-1 py-2.5 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-200 flex items-center justify-center gap-2',
+          activeTab === 'signup' 
+            ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20' 
+            : 'text-slate-400 hover:text-slate-200'
+        ]"
+      >
+        <span>✨</span> Create Account
+      </button>
     </div>
 
     <!-- Error Alert Widget -->
     <div v-if="errorMessage" class="mb-5 bg-red-500/10 border border-red-500/20 text-red-200 px-4 py-3 rounded-xl text-sm flex items-start gap-2.5 animate-fadeIn">
       <span class="text-lg leading-none mt-0.5">⚠️</span>
       <div class="flex-1">
-        <span class="font-semibold block">Authentication failed</span>
-        <span class="text-xs text-red-300/90">{{ errorMessage }}</span>
+        <span class="font-semibold block">Notice</span>
+        <span class="text-xs text-red-300/90 leading-relaxed">{{ errorMessage }}</span>
       </div>
     </div>
 
-    <!-- Success Info Alert Widget -->
+    <!-- Success Alert Widget -->
     <div v-if="successMessage" class="mb-5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-200 px-4 py-3 rounded-xl text-sm flex items-start gap-2.5 animate-fadeIn">
-      <span class="text-lg leading-none mt-0.5">📧</span>
+      <span class="text-lg leading-none mt-0.5">✅</span>
       <div class="flex-1">
-        <span class="font-semibold block">Code sent</span>
-        <span class="text-xs text-emerald-300/90">{{ successMessage }}</span>
+        <span class="font-semibold block">Success</span>
+        <span class="text-xs text-emerald-300/90 leading-relaxed">{{ successMessage }}</span>
       </div>
     </div>
 
-    <!-- Step 1: Email Request Form -->
-    <form v-if="step === 'email'" class="space-y-5" @submit.prevent="handleSendOtp">
+    <!-- TAB 1: LOG IN FORM -->
+    <form v-if="activeTab === 'signin'" class="space-y-4" @submit.prevent="handleSignIn">
       <div>
-        <label for="email" class="block text-xs font-bold uppercase tracking-wider text-slate-400">Email address</label>
+        <label for="signin-email" class="block text-xs font-bold uppercase tracking-wider text-slate-400">Email Address</label>
         <div class="mt-1.5 relative">
           <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">📧</span>
           <input
-            id="email"
+            id="signin-email"
             v-model="email"
             type="email"
             required
             autocomplete="email"
             :disabled="loading"
             placeholder="admin@school.com"
+            class="block w-full pl-10 pr-4 py-3 bg-slate-950/80 border border-slate-800 text-white rounded-xl placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label for="signin-password" class="block text-xs font-bold uppercase tracking-wider text-slate-400">Password</label>
+        <div class="mt-1.5 relative">
+          <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">🔒</span>
+          <input
+            id="signin-password"
+            v-model="password"
+            type="password"
+            required
+            minlength="6"
+            autocomplete="current-password"
+            :disabled="loading"
+            placeholder="••••••••"
             class="block w-full pl-10 pr-4 py-3 bg-slate-950/80 border border-slate-800 text-white rounded-xl placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm"
           />
         </div>
@@ -61,40 +107,72 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            Sending verification code...
+            Authenticating...
           </span>
-          <span v-else>Send Verification Code</span>
+          <span v-else>Log In to Portal</span>
         </button>
       </div>
     </form>
 
-    <!-- Step 2: OTP Verification Form -->
-    <form v-else class="space-y-5" @submit.prevent="handleVerifyOtp">
+    <!-- TAB 2: CREATE ACCOUNT FORM -->
+    <form v-else class="space-y-4" @submit.prevent="handleSignUp">
       <div>
-        <label for="otp" class="block text-xs font-bold uppercase tracking-wider text-slate-400">Verification Code</label>
+        <label for="signup-email" class="block text-xs font-bold uppercase tracking-wider text-slate-400">Email Address</label>
         <div class="mt-1.5 relative">
-          <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">🔑</span>
+          <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">📧</span>
           <input
-            id="otp"
-            v-model="otp"
-            @input="otp = otp.replace(/\D/g, '')"
-            type="text"
+            id="signup-email"
+            v-model="email"
+            type="email"
             required
-            pattern="[0-9]{6,8}"
-            maxlength="8"
-            inputmode="numeric"
-            autocomplete="one-time-code"
+            autocomplete="email"
             :disabled="loading"
-            placeholder="Enter code"
-            class="block w-full pl-10 pr-4 py-3 bg-slate-950/80 border border-slate-800 text-white rounded-xl placeholder-slate-650 tracking-[0.25em] text-center font-mono font-bold focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-base"
+            placeholder="newadmin@school.com"
+            class="block w-full pl-10 pr-4 py-3 bg-slate-950/80 border border-slate-800 text-white rounded-xl placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm"
           />
         </div>
       </div>
 
-      <div class="pt-2 space-y-3">
+      <div>
+        <label for="signup-password" class="block text-xs font-bold uppercase tracking-wider text-slate-400">Choose Password</label>
+        <div class="mt-1.5 relative">
+          <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">🔒</span>
+          <input
+            id="signup-password"
+            v-model="password"
+            type="password"
+            required
+            minlength="6"
+            autocomplete="new-password"
+            :disabled="loading"
+            placeholder="At least 6 characters"
+            class="block w-full pl-10 pr-4 py-3 bg-slate-950/80 border border-slate-800 text-white rounded-xl placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label for="signup-confirm" class="block text-xs font-bold uppercase tracking-wider text-slate-400">Confirm Password</label>
+        <div class="mt-1.5 relative">
+          <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">🔒</span>
+          <input
+            id="signup-confirm"
+            v-model="confirmPassword"
+            type="password"
+            required
+            minlength="6"
+            autocomplete="new-password"
+            :disabled="loading"
+            placeholder="Re-enter password"
+            class="block w-full pl-10 pr-4 py-3 bg-slate-950/80 border border-slate-800 text-white rounded-xl placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm"
+          />
+        </div>
+      </div>
+
+      <div class="pt-2">
         <button
           type="submit"
-          :disabled="loading || otp.length < 6 || otp.length > 8"
+          :disabled="loading"
           class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-blue-500/20"
         >
           <span v-if="loading" class="flex items-center gap-2">
@@ -102,188 +180,139 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            Verifying code...
+            Creating Account...
           </span>
-          <span v-else>Verify & Sign In</span>
+          <span v-else>Create Account</span>
         </button>
-
-        <div class="flex items-center justify-between text-xs px-1">
-          <button
-            type="button"
-            @click="goBack"
-            :disabled="loading"
-            class="text-slate-400 hover:text-slate-300 font-semibold focus:outline-none disabled:opacity-50"
-          >
-            ← Back to email
-          </button>
-
-          <button
-            type="button"
-            @click="handleSendOtp"
-            :disabled="loading || countdown > 0"
-            class="text-blue-400 hover:text-blue-300 font-semibold focus:outline-none disabled:opacity-50 disabled:text-slate-500"
-          >
-            {{ countdown > 0 ? `Resend in ${countdown}s` : 'Resend Code' }}
-          </button>
-        </div>
       </div>
     </form>
   </div>
 </template>
 
 <script setup>
-import { ref, onBeforeUnmount, watch } from 'vue'
+import { ref, watch } from 'vue'
 
 definePageMeta({
   layout: 'auth'
 })
 
+const route = useRoute()
+const client = useSupabaseClient()
+
+// Tab state: 'signin' or 'signup'
+const activeTab = ref(route.path === '/signup' ? 'signup' : 'signin')
 const email = ref('')
-const otp = ref('')
-const step = ref('email') // 'email' or 'verify'
+const password = ref('')
+const confirmPassword = ref('')
 const loading = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
-const countdown = ref(0)
 
-let timer = null
-
-const client = useSupabaseClient()
-
-const startTimer = () => {
-  countdown.value = 60
-  if (timer) clearInterval(timer)
-  timer = setInterval(() => {
-    if (countdown.value > 0) {
-      countdown.value--
-    } else {
-      clearInterval(timer)
-    }
-  }, 1000)
+function switchTab(tab) {
+  activeTab.value = tab
+  errorMessage.value = ''
+  successMessage.value = ''
 }
 
-onBeforeUnmount(() => {
-  if (timer) clearInterval(timer)
-})
+// Wait for user state to sync with Nuxt composable before navigating
+const waitForUserAndNavigate = async () => {
+  const user = useSupabaseUser()
+  if (!user.value) {
+    await new Promise((resolve) => {
+      const unwatch = watch(user, (newUser) => {
+        if (newUser) {
+          unwatch()
+          resolve()
+        }
+      })
+      setTimeout(() => {
+        unwatch()
+        resolve()
+      }, 2500)
+    })
+  }
+  await navigateTo('/')
+}
 
-const handleSendOtp = async () => {
+// 1. Handle Log In
+const handleSignIn = async () => {
   if (loading.value) return
   loading.value = true
   errorMessage.value = ''
   successMessage.value = ''
 
   try {
-    const { error } = await client.auth.signInWithOtp({
+    const { data, error } = await client.auth.signInWithPassword({
       email: email.value,
-      options: {
-        shouldCreateUser: true
+      password: password.value
+    })
+
+    if (error) {
+      if (error.message.includes('Invalid login credentials')) {
+        errorMessage.value = 'Invalid email or password. If you do not have an account yet, click "Create Account" above.'
+      } else {
+        errorMessage.value = error.message
       }
+    } else if (data.session) {
+      successMessage.value = 'Log in successful! Redirecting...'
+      await waitForUserAndNavigate()
+    }
+  } catch (err) {
+    errorMessage.value = 'An unexpected error occurred. Please try again.'
+    console.error('Sign in error:', err)
+  } finally {
+    loading.value = false
+  }
+}
+
+// 2. Handle Create Account
+const handleSignUp = async () => {
+  if (loading.value) return
+  
+  if (password.value !== confirmPassword.value) {
+    errorMessage.value = 'Passwords do not match. Please verify your password.'
+    return
+  }
+
+  loading.value = true
+  errorMessage.value = ''
+  successMessage.value = ''
+
+  try {
+    const { data, error } = await client.auth.signUp({
+      email: email.value,
+      password: password.value
     })
 
     if (error) {
       errorMessage.value = error.message
+    } else if (data.session) {
+      // User registered & auto-authenticated!
+      successMessage.value = 'Account created successfully! Redirecting...'
+      await waitForUserAndNavigate()
     } else {
-      step.value = 'verify'
-      successMessage.value = `A verification code has been sent to ${email.value}.`
-      startTimer()
-    }
-  } catch (err) {
-    errorMessage.value = 'An unexpected error occurred. Please try again.'
-    console.error('Send OTP error:', err)
-  } finally {
-    loading.value = false
-  }
-}
-
-const handleVerifyOtp = async () => {
-  if (loading.value || otp.value.length < 6 || otp.value.length > 8) return
-  loading.value = true
-  errorMessage.value = ''
-
-  try {
-    console.log(`Attempting to verify OTP of length ${otp.value.length} with type 'email'...`)
-    // Try verifying as a standard login OTP first
-    const { error } = await client.auth.verifyOtp({
-      email: email.value,
-      token: otp.value,
-      type: 'email'
-    })
-
-    if (error) {
-      console.warn('Verify OTP with type "email" failed:', error.message)
-      // If it fails (common for new signups when email confirmation is enabled), try verifying as signup
-      console.log('Attempting fallback verification with type "signup"...')
-      const { error: signupError } = await client.auth.verifyOtp({
+      // Account created! Attempt direct login immediately
+      const { data: signInData, error: signInError } = await client.auth.signInWithPassword({
         email: email.value,
-        token: otp.value,
-        type: 'signup'
+        password: password.value
       })
 
-      if (signupError) {
-        console.error('Verify OTP with type "signup" also failed:', signupError.message)
-        // If both verify types fail, display the error message
-        errorMessage.value = error.message
+      if (signInData?.session) {
+        successMessage.value = 'Account created successfully! Redirecting...'
+        await waitForUserAndNavigate()
+      } else if (signInError?.message.includes('Email not confirmed')) {
+        successMessage.value = 'Account created! Please disable "Confirm email" in your Supabase Dashboard (Auth -> Providers -> Email) to bypass email verification.'
       } else {
-        console.log('Successfully verified with type "signup"')
-        
-        // Wait for useSupabaseUser to be populated before navigating to avoid middleware race condition
-        const user = useSupabaseUser()
-        if (!user.value) {
-          console.log('Waiting for useSupabaseUser to populate...')
-          await new Promise((resolve) => {
-            const unwatch = watch(user, (newUser) => {
-              if (newUser) {
-                unwatch()
-                resolve()
-              }
-            })
-            setTimeout(() => {
-              unwatch()
-              resolve()
-            }, 2000)
-          })
-        }
-        
-        console.log('User authenticated, navigating...')
-        await navigateTo('/')
+        successMessage.value = 'Account created! You can now switch to Log In and sign in.'
+        activeTab.value = 'signin'
       }
-    } else {
-      console.log('Successfully verified with type "email"')
-      
-      // Wait for useSupabaseUser to be populated before navigating to avoid middleware race condition
-      const user = useSupabaseUser()
-      if (!user.value) {
-        console.log('Waiting for useSupabaseUser to populate...')
-        await new Promise((resolve) => {
-          const unwatch = watch(user, (newUser) => {
-            if (newUser) {
-              unwatch()
-              resolve()
-            }
-          })
-          setTimeout(() => {
-            unwatch()
-            resolve()
-          }, 2000)
-        })
-      }
-      
-      console.log('User authenticated, navigating...')
-      await navigateTo('/')
     }
   } catch (err) {
-    errorMessage.value = 'An unexpected error occurred. Please try again.'
-    console.error('Verify OTP error:', err)
+    errorMessage.value = 'An unexpected error occurred during signup.'
+    console.error('Sign up error:', err)
   } finally {
     loading.value = false
   }
-}
-
-const goBack = () => {
-  step.value = 'email'
-  otp.value = ''
-  errorMessage.value = ''
-  successMessage.value = ''
 }
 </script>
 
