@@ -1,6 +1,8 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2026-09-02',
+  ssr: false, // SPA Mode for instant page loads & zero server cold starts
+
   modules: ['@nuxtjs/supabase', '@nuxtjs/tailwindcss'],
 
   app: {
@@ -18,7 +20,14 @@ export default defineNuxtConfig({
   },
 
   supabase: {
-    redirect: false
+    redirect: false,
+    clientOptions: {
+      auth: {
+        persistSession: true,
+        detectSessionInUrl: true,
+        autoRefreshToken: true
+      }
+    }
   },
 
   runtimeConfig: {
@@ -28,6 +37,3 @@ export default defineNuxtConfig({
     },
   },
 })
-
-
-
