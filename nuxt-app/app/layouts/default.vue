@@ -65,7 +65,12 @@
             <span class="text-xs font-bold text-slate-950 truncate group-hover/widget:text-blue-600 transition-colors">
               {{ displaySchoolName }}
             </span>
-            <span class="text-[10px] text-slate-400 truncate" :title="user?.email">{{ user?.email || 'Administrator' }}</span>
+            <div class="flex items-center gap-1.5 mt-0.5">
+              <span class="text-[10px] text-slate-400 truncate" :title="user?.email">{{ user?.email || 'User' }}</span>
+              <span class="px-1.5 py-0.2 rounded text-[9px] font-extrabold uppercase bg-slate-100 text-slate-600 border border-slate-200">
+                {{ userRole }}
+              </span>
+            </div>
           </div>
         </NuxtLink>
         <button 
@@ -105,14 +110,32 @@ const user = useSupabaseUser()
 
 const localSchoolName = ref('')
 const localLogoUrl = ref('')
+const userRole = ref('pending')
 
 const displaySchoolName = computed(() => {
-  return user.value?.user_metadata?.school_name || localSchoolName.value || 'School Profile'
+  return user.value?.user_metadata?.full_name || user.value?.user_metadata?.name || user.value?.email || 'School Portal'
 })
 
 const displayLogoUrl = computed(() => {
-  return user.value?.user_metadata?.logo_url || localLogoUrl.value || ''
+  return user.value?.user_metadata?.avatar_url || user.value?.user_metadata?.picture || localLogoUrl.value || ''
 })
+
+async function fetchUserProfileRole() {
+  if (!user.value) return
+  try {
+    const { data } = await client
+      .from('profiles')
+      .select('role')
+      .eq('id', user.value.id)
+      .maybeSingle()
+
+    if (data && data.role) {
+      userRole.value = data.role
+    }
+  } catch (e) {
+    console.error('Failed to load profile role:', e)
+  }
+}
 
 onMounted(() => {
   try {
@@ -125,13 +148,11 @@ onMounted(() => {
   } catch (e) {
     console.error('Failed to read school_profile from localStorage:', e)
   }
+  fetchUserProfileRole()
 })
 
-watch(() => user.value?.user_metadata, (meta) => {
-  if (meta) {
-    if (meta.school_name) localSchoolName.value = meta.school_name
-    if (meta.logo_url) localLogoUrl.value = meta.logo_url
-  }
+watch(() => user.value, () => {
+  fetchUserProfileRole()
 }, { immediate: true })
 
 const userInitials = computed(() => {
@@ -146,24 +167,31 @@ const userInitials = computed(() => {
 
 const handleLogout = async () => {
   try {
-    if (user.value) {
-      await client.auth.signOut()
-    }
-    await navigateTo('/students')
+    await client.auth.signOut()
   } catch (err) {
     console.error('Logout error:', err)
+  } finally {
+    await navigateTo('/login')
   }
 }
 
-const navItems = [
-  { label: 'Students Directory', path: '/students', icon: '👥' },
-  { label: 'Attendance Portal', path: '/attendance', icon: '📝' },
-  { label: 'Grades Portal', path: '/grades', icon: '🏆' },
-  { label: 'Report Cards', path: '/report-cards', icon: '📋' },
-  { label: 'Student 360', path: '/student-360', icon: '🔍' },
-  { label: 'Teachers Portal', path: '/teachers', icon: '👨‍🏫' },
-  { label: 'Subjects Portal', path: '/subjects', icon: '📖' },
-  { label: 'Analytics Dashboard', path: '/dashboard', icon: '📊' },
-  { label: 'School Profile', path: '/profile', icon: '🏫' }
+const allNavItems = [
+  { label: 'Admin Workstation', path: '/admin', icon: '⚡', roles: ['admin'] },
+  { label: 'Teacher Workstation', path: '/teacher', icon: '👨‍🏫', roles: ['teacher', 'admin'] },
+  { label: 'Student Workstation', path: '/student', icon: '🎓', roles: ['student'] },
+  { label: 'Parent Workstation', path: '/parent', icon: '👨‍👩‍👧', roles: ['parent'] },
+  { label: 'Students Directory', path: '/students', icon: '👥', roles: ['admin', 'teacher', 'student', 'parent'] },
+  { label: 'Attendance Portal', path: '/attendance', icon: '📝', roles: ['admin', 'teacher'] },
+  { label: 'Grades Portal', path: '/grades', icon: '🏆', roles: ['admin', 'teacher'] },
+  { label: 'Report Cards', path: '/report-cards', icon: '📋', roles: ['admin', 'teacher', 'student', 'parent'] },
+  { label: 'Student 360', path: '/student-360', icon: '🔍', roles: ['admin', 'teacher', 'student', 'parent'] },
+  { label: 'Teachers Directory', path: '/teachers', icon: '👨‍🏫', roles: ['admin', 'teacher'] },
+  { label: 'Subjects Portal', path: '/subjects', icon: '📖', roles: ['admin', 'teacher'] },
+  { label: 'Analytics Dashboard', path: '/dashboard', icon: '📊', roles: ['admin', 'teacher'] },
+  { label: 'School Profile', path: '/profile', icon: '🏫', roles: ['admin', 'teacher', 'student', 'parent'] }
 ]
+
+const navItems = computed(() => {
+  return allNavItems.filter(item => item.roles.includes(userRole.value) || userRole.value === 'admin')
+})
 </script>
