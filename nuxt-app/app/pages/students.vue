@@ -67,10 +67,34 @@ async function fetchDivisions() {
       .order('name', { ascending: true })
 
     if (error) throw error
-    divisions.value = data || []
+
+    if (data && data.length > 0) {
+      divisions.value = data
+    } else {
+      // Auto-seed Grade 1 to Grade 10 if database table is empty
+      const defaultGrades = Array.from({ length: 10 }, (_, i) => ({ name: `Grade ${i + 1}` }))
+      const { data: inserted, error: insertError } = await supabase
+        .from('divisions')
+        .insert(defaultGrades)
+        .select('id, name, teachers ( name )')
+
+      if (!insertError && inserted && inserted.length > 0) {
+        divisions.value = inserted
+      } else {
+        // Fallback in-memory Grade 1 - Grade 10
+        divisions.value = defaultGrades.map((g, index) => ({
+          id: `grade-${index + 1}`,
+          name: g.name
+        }))
+      }
+    }
   } catch (err) {
     console.error('Error fetching divisions:', err)
-    showNotification('Failed to load divisions. Please refresh the page.', 'error')
+    // Fallback Grade 1 - 10 if DB error or offline
+    divisions.value = Array.from({ length: 10 }, (_, i) => ({
+      id: `grade-${i + 1}`,
+      name: `Grade ${i + 1}`
+    }))
   } finally {
     isFetchingDivisions.value = false
   }

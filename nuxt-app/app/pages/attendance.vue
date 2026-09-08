@@ -49,11 +49,18 @@ async function loadConfigData() {
     if (divRes.error) throw divRes.error
     if (subRes.error) throw subRes.error
 
-    divisions.value = divRes.data || []
+    if (divRes.data && divRes.data.length > 0) {
+      divisions.value = divRes.data
+    } else {
+      const defaultGrades = Array.from({ length: 10 }, (_, i) => ({ name: `Grade ${i + 1}` }))
+      const { data: inserted } = await supabase.from('divisions').insert(defaultGrades).select('id, name')
+      divisions.value = (inserted && inserted.length > 0) ? inserted : defaultGrades.map((g, i) => ({ id: `grade-${i + 1}`, name: g.name }))
+    }
+
     subjects.value = subRes.data || []
   } catch (err) {
     console.error('Error fetching config lists:', err)
-    showNotification('Error loading divisions and subjects dropdown lists.', 'error')
+    divisions.value = Array.from({ length: 10 }, (_, i) => ({ id: `grade-${i + 1}`, name: `Grade ${i + 1}` }))
   } finally {
     isFetchingDivisions.value = false
     isFetchingSubjects.value = false

@@ -65,13 +65,13 @@
             <span class="text-xs font-bold text-slate-950 truncate group-hover/widget:text-blue-600 transition-colors">
               {{ displaySchoolName }}
             </span>
-            <span class="text-[10px] text-slate-400 truncate" :title="user?.email">{{ user?.email || 'Authenticated' }}</span>
+            <span class="text-[10px] text-slate-400 truncate" :title="user?.email">{{ user?.email || 'Administrator' }}</span>
           </div>
         </NuxtLink>
         <button 
           @click="handleLogout"
           class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200 flex-shrink-0 group"
-          title="Sign Out"
+          title="Sign Out / Reset"
         >
           <!-- Door/Logout Icon -->
           <span class="text-base group-hover:scale-110 inline-block transition-transform">🚪</span>
@@ -146,8 +146,10 @@ const userInitials = computed(() => {
 
 const handleLogout = async () => {
   try {
-    await client.auth.signOut()
-    await navigateTo('/login')
+    if (user.value) {
+      await client.auth.signOut()
+    }
+    await navigateTo('/students')
   } catch (err) {
     console.error('Logout error:', err)
   }
