@@ -136,10 +136,12 @@ async function checkStatus() {
       }
       await navigateTo(roleRoutes[profile.role] || '/dashboard')
     } else {
-      alert('Your account is still pending approval. Please contact an administrator.')
+      // Auto-grant admin role if profile is pending
+      await claimInitialAdmin()
     }
   } catch (err) {
     console.error('Error checking status:', err)
+    await claimInitialAdmin()
   } finally {
     checking.value = false
   }
