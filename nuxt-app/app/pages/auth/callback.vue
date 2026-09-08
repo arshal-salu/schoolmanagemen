@@ -82,20 +82,22 @@ onMounted(async () => {
       .eq('id', currentAuthUser.id)
       .maybeSingle()
 
-    let userRole = 'admin'
+    let userRole = 'pending'
 
     if (fetchErr) {
       console.error('Error fetching profile:', fetchErr)
     }
 
     if (profile) {
-      userRole = profile.role && profile.role !== 'pending' ? profile.role : 'admin'
-      if (profile.role === 'pending') {
-        // Auto-upgrade pending profile to admin
-        await client.from('profiles').update({ role: 'admin' }).eq('id', currentAuthUser.id)
-      }
+      userRole = profile.role || 'pending'
     } else {
-      // Create profile with active 'admin' access
+      // 3. Check total profiles count to auto-bootstrap first admin
+      const { count } = await client
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+
+      const initialRole = (count === 0 || count === null) ? 'admin' : 'pending'
+
       const meta = currentAuthUser.user_metadata || {}
       const fullName = meta.full_name || meta.name || currentAuthUser.email.split('@')[0]
       const avatarUrl = meta.avatar_url || meta.picture || ''
@@ -107,7 +109,7 @@ onMounted(async () => {
           full_name: fullName,
           email: currentAuthUser.email,
           avatar_url: avatarUrl,
-          role: 'admin'
+          role: initialRole
         })
         .select()
         .single()
@@ -115,11 +117,11 @@ onMounted(async () => {
       if (insertErr) {
         console.error('Profile creation error:', insertErr)
       }
-      userRole = newProfile?.role || 'admin'
+      userRole = newProfile?.role || initialRole
     }
 
-    // 4. Redirect user directly to portal
-    const targetRoute = roleRoutes[userRole] || '/admin'
+    // 4. Redirect user according to role
+    const targetRoute = roleRoutes[userRole] || '/pending'
     await navigateTo(targetRoute)
   } catch (err) {
     console.error('Callback error:', err)

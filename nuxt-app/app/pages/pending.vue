@@ -147,11 +147,12 @@ async function checkStatus() {
   }
 }
 
-onMounted(async () => {
-  if (user.value) {
-    await claimInitialAdmin()
-  } else {
+async function handleLogout() {
+  try {
+    await client.auth.signOut()
     await navigateTo('/login')
+  } catch (err) {
+    console.error('Sign out error:', err)
   }
-})
+}
 </script>

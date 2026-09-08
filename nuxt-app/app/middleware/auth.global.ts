@@ -10,10 +10,10 @@ export default defineNuxtRouteMiddleware(async (to) => {
     return navigateTo('/login')
   }
 
-  // 2. Authenticated users accessing login/signup -> redirect to their portal home
+  // 2. Authenticated users accessing login/signup -> redirect to their role home
   if (user.value) {
-    // Fetch profile role (default to admin)
-    let role = 'admin'
+    // Fetch profile role
+    let role = 'pending'
     try {
       const { data: profile } = await client
         .from('profiles')
@@ -21,7 +21,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
         .eq('id', user.value.id)
         .maybeSingle()
 
-      if (profile && profile.role && profile.role !== 'pending') {
+      if (profile && profile.role) {
         role = profile.role
       }
     } catch (e) {
@@ -33,17 +33,35 @@ export default defineNuxtRouteMiddleware(async (to) => {
       admin: '/admin',
       teacher: '/teacher',
       student: '/student',
-      parent: '/parent'
+      parent: '/parent',
+      pending: '/pending'
     }
 
     // Redirect authenticated users away from public auth pages
     if (publicRoutes.includes(to.path)) {
-      return navigateTo(roleHomeRoutes[role] || '/admin')
+      return navigateTo(roleHomeRoutes[role] || '/pending')
     }
 
-    // If user visits /pending, redirect them to their portal home
-    if (to.path === '/pending') {
-      return navigateTo(roleHomeRoutes[role] || '/admin')
+    // If user is 'pending', restrict to /pending page only
+    if (role === 'pending' && to.path !== '/pending') {
+      return navigateTo('/pending')
+    }
+
+    // Role-based route authorization matrix
+    const allowedRoutesByRole = {
+      admin: ['*'], // Admin has full access
+      teacher: ['/teacher', '/teachers', '/students', '/attendance', '/grades', '/report-cards', '/student-360', '/subjects', '/profile', '/dashboard'],
+      student: ['/student', '/students', '/report-cards', '/student-360', '/profile'],
+      parent: ['/parent', '/students', '/report-cards', '/student-360', '/profile']
+    }
+
+    const allowed = allowedRoutesByRole[role] || []
+    if (role !== 'admin' && role !== 'pending') {
+      const isPathAllowed = allowed.some(allowedPath => to.path.startsWith(allowedPath))
+      if (!isPathAllowed) {
+        // Redirect unauthorized access back to user's role home
+        return navigateTo(roleHomeRoutes[role] || '/pending')
+      }
     }
   }
 })
