@@ -44,6 +44,14 @@
         </button>
 
         <button
+          @click="claimInitialAdmin"
+          :disabled="checking"
+          class="w-full sm:w-auto px-5 py-2.5 bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-white font-semibold text-xs rounded-xl transition-all duration-200 shadow-md flex items-center justify-center gap-2"
+        >
+          <span>🔑</span> Claim First Admin Role
+        </button>
+
+        <button
           @click="handleLogout"
           class="w-full sm:w-auto px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold text-xs rounded-xl transition-all duration-200"
         >
@@ -66,6 +74,44 @@ const user = useSupabaseUser()
 const checking = ref(false)
 
 const userEmail = computed(() => user.value?.email || 'Authenticated User')
+
+async function claimInitialAdmin() {
+  if (!user.value) {
+    await navigateTo('/login')
+    return
+  }
+
+  checking.value = true
+  try {
+    const meta = user.value.user_metadata || {}
+    const fullName = meta.full_name || meta.name || user.value.email.split('@')[0]
+    const avatarUrl = meta.avatar_url || meta.picture || ''
+
+    // Upsert profile as admin
+    const { error } = await client
+      .from('profiles')
+      .upsert({
+        id: user.value.id,
+        full_name: fullName,
+        email: user.value.email,
+        avatar_url: avatarUrl,
+        role: 'admin'
+      })
+
+    if (error) {
+      console.warn('Upsert profile error:', error.message)
+      // Fallback: try RPC or direct update
+      await client.from('profiles').update({ role: 'admin' }).eq('id', user.value.id)
+    }
+
+    await navigateTo('/admin')
+  } catch (err) {
+    console.error('Claim admin error:', err)
+    alert('Failed to set admin role: ' + (err.message || 'Please run the SQL script in Supabase.'))
+  } finally {
+    checking.value = false
+  }
+}
 
 async function checkStatus() {
   if (!user.value) {

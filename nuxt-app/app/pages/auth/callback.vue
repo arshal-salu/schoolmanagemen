@@ -91,19 +91,25 @@ onMounted(async () => {
     if (profile) {
       userRole = profile.role || 'pending'
     } else {
-      // 3. Create profile if it does not exist (default role: 'pending')
+      // 3. Check total profiles count to auto-bootstrap first admin
+      const { count } = await client
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+
+      const initialRole = (count === 0 || count === null) ? 'admin' : 'pending'
+
       const meta = currentAuthUser.user_metadata || {}
       const fullName = meta.full_name || meta.name || currentAuthUser.email.split('@')[0]
       const avatarUrl = meta.avatar_url || meta.picture || ''
 
       const { data: newProfile, error: insertErr } = await client
         .from('profiles')
-        .insert({
+        .upsert({
           id: currentAuthUser.id,
           full_name: fullName,
           email: currentAuthUser.email,
           avatar_url: avatarUrl,
-          role: 'pending'
+          role: initialRole
         })
         .select()
         .single()
@@ -111,7 +117,7 @@ onMounted(async () => {
       if (insertErr) {
         console.error('Profile creation error:', insertErr)
       }
-      userRole = newProfile?.role || 'pending'
+      userRole = newProfile?.role || initialRole
     }
 
     // 4. Redirect user according to role
