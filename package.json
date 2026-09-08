@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "dev": "npm run dev --prefix nuxt-app",
-    "build": "npm run build --prefix nuxt-app",
+    "build": "cd nuxt-app && npm install && npm run build",
+    "vercel-build": "cd nuxt-app && npm install && npm run build",
     "generate": "npm run generate --prefix nuxt-app",
     "preview": "npm run preview --prefix nuxt-app"
   }
