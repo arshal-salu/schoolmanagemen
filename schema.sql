@@ -160,3 +160,71 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
+-- ========================================================
+-- SECURITY HARDENING & RPC ROLE ASSIGNMENT
+-- ========================================================
+
+-- 1. Prevent users from modifying their own role via direct UPDATE
+CREATE OR REPLACE FUNCTION public.prevent_profile_role_self_update()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.role IS DISTINCT FROM OLD.role THEN
+    IF auth.uid() IS NOT NULL THEN
+      IF NOT EXISTS (
+        SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin'
+      ) THEN
+        RAISE EXCEPTION 'Access denied: Only administrators can update user roles.';
+      END IF;
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
+
+DROP TRIGGER IF EXISTS tr_prevent_profile_role_self_update ON public.profiles;
+CREATE TRIGGER tr_prevent_profile_role_self_update
+  BEFORE UPDATE ON public.profiles
+  FOR EACH ROW EXECUTE FUNCTION public.prevent_profile_role_self_update();
+
+-- 2. Allow Admins to View All Profiles (Users can view own profile)
+DROP POLICY IF EXISTS "Users can view their own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Admins and users view profiles" ON public.profiles;
+
+CREATE POLICY "Admins and users view profiles" ON public.profiles
+FOR SELECT USING (
+  auth.uid() = id 
+  OR 
+  EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
+);
+
+-- 3. Secure RPC function for Admin Role Assignment
+CREATE OR REPLACE FUNCTION public.assign_user_role(target_user_id UUID, new_role TEXT)
+RETURNS void AS $$
+DECLARE
+  caller_role TEXT;
+BEGIN
+  -- Verify caller is an authenticated admin
+  SELECT role INTO caller_role FROM public.profiles WHERE id = auth.uid();
+  IF caller_role IS NULL OR caller_role != 'admin' THEN
+    RAISE EXCEPTION 'Unauthorized: Only active administrators can assign user roles.';
+  END IF;
+
+  -- Validate target role
+  IF new_role NOT IN ('pending', 'admin', 'teacher', 'student', 'parent') THEN
+    RAISE EXCEPTION 'Invalid role specified: %', new_role;
+  END IF;
+
+  -- Update target profile role
+  UPDATE public.profiles
+  SET role = new_role
+  WHERE id = target_user_id;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'User profile not found for id: %', target_user_id;
+  END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
+
+GRANT EXECUTE ON FUNCTION public.assign_user_role(UUID, TEXT) TO authenticated;
+
+

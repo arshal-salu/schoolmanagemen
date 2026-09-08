@@ -11,6 +11,12 @@
         </div>
         <p class="text-xs text-slate-500 mt-1">Manage user access roles, view system metrics, and oversee school operations.</p>
       </div>
+
+      <div>
+        <NuxtLink to="/admin/users" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-xl transition-all shadow-sm flex items-center gap-1.5">
+          🔑 Manage User Roles & Approvals
+        </NuxtLink>
+      </div>
     </div>
 
     <!-- User Roles Management Widget (Approve Pending Users) -->

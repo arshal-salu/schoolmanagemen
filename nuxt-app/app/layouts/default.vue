@@ -177,6 +177,7 @@ const handleLogout = async () => {
 
 const allNavItems = [
   { label: 'Admin Workstation', path: '/admin', icon: '⚡', roles: ['admin'] },
+  { label: 'Users & Role Management', path: '/admin/users', icon: '🔑', roles: ['admin'] },
   { label: 'Teacher Workstation', path: '/teacher', icon: '👨‍🏫', roles: ['teacher', 'admin'] },
   { label: 'Student Workstation', path: '/student', icon: '🎓', roles: ['student'] },
   { label: 'Parent Workstation', path: '/parent', icon: '👨‍👩‍👧', roles: ['parent'] },
